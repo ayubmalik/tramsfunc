@@ -10,18 +10,50 @@ import (
 )
 
 const (
-	API_KEY_HEADER = "Ocp-Apim-Subscription-Key"
+	TFGM_API_KEY        = "TFGM_API_KEY"
+	TFGM_API_URL        = "TFGM_API_URL"
+	TFGM_API_KEY_HEADER = "Ocp-Apim-Subscription-Key"
 )
 
 // API is the entry point for GCP Functions.
 func API(w http.ResponseWriter, r *http.Request) {
-	var apiKey string
-	if apiKey = os.Getenv("TFGM_API_KEY"); apiKey == "" {
+
+	var apiKey, apiURL string
+
+	if apiKey = os.Getenv(TFGM_API_KEY); apiKey == "" {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, "TFGM API Key is not set")
 		return
 	}
-	fmt.Fprintf(w, "Hello, World! API KEY = %s\n", apiKey)
+
+	if apiURL = os.Getenv(TFGM_API_URL); apiURL == "" {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "TFGM API URL is not set")
+		return
+	}
+
+	var (
+		client     *client  = newClient(apiKey, apiURL)
+		ids        []string = r.URL.Query()["id"]
+		metrolinks []Metrolink
+		err        error
+	)
+
+	if len(ids) == 0 {
+		metrolinks, err = client.allMetrolinks()
+	} else {
+		metrolinks, err = client.metrolinksById(ids...)
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, err.Error())
+	}
+
+	if err = json.NewEncoder(w).Encode(metrolinks); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, err.Error())
+	}
 }
 
 type client struct {
@@ -40,6 +72,7 @@ func newClient(apiKey, apiURL string) *client {
 	}
 }
 
+// allMetrolinks() returns all available metrolinks
 func (c client) allMetrolinks() ([]Metrolink, error) {
 	var metrolinks Metrolinks
 	err := c.callAPI("/Metrolinks", &metrolinks)
@@ -49,6 +82,7 @@ func (c client) allMetrolinks() ([]Metrolink, error) {
 	return metrolinks.Value, nil
 }
 
+// metrolinksById returns metrolinks for the given IDs
 func (c client) metrolinksById(ids ...string) ([]Metrolink, error) {
 	metrolinks := make([]Metrolink, 0)
 	for _, id := range ids {
@@ -67,7 +101,7 @@ func (c client) callAPI(path string, value interface{}) error {
 	if err != nil {
 		return err
 	}
-	req.Header.Add(API_KEY_HEADER, c.key)
+	req.Header.Add(TFGM_API_KEY_HEADER, c.key)
 
 	res, err := c.httpClient.Do(req)
 	if err != nil {

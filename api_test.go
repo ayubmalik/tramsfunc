@@ -4,13 +4,16 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"regexp"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestClient(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get(API_KEY_HEADER) != "some key" {
+		if r.Header.Get(TFGM_API_KEY_HEADER) != "some key" {
 			w.WriteHeader(401)
 			return
 		}
@@ -56,5 +59,58 @@ func TestClient(t *testing.T) {
 			t.Errorf("got %d results want %d", len(metrolinks), 3)
 		}
 
+	})
+}
+
+func TestAPI(t *testing.T) {
+
+	t.Run("when API key not set", func(t *testing.T) {
+		os.Setenv(TFGM_API_KEY, "")
+		os.Setenv(TFGM_API_URL, "some url")
+
+		res := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+
+		API(res, req)
+
+		assert.Equal(t, http.StatusInternalServerError, res.Result().StatusCode)
+	})
+
+	t.Run("when API URL not set", func(t *testing.T) {
+		os.Setenv(TFGM_API_KEY, "some key")
+		os.Setenv(TFGM_API_URL, "")
+
+		res := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+
+		API(res, req)
+
+		assert.Equal(t, http.StatusInternalServerError, res.Result().StatusCode)
+	})
+
+	t.Run("calls all metrolinks when no ID param", func(t *testing.T) {
+		os.Setenv(TFGM_API_KEY, "some key")
+		os.Setenv(TFGM_API_URL, "http://localhost")
+
+		res := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+
+		API(res, req)
+
+		// quick hack :)
+		assert.Contains(t, res.Body.String(), "/Metrolinks")
+	})
+
+	t.Run("calls metrolinks by ID", func(t *testing.T) {
+		os.Setenv(TFGM_API_KEY, "some key")
+		os.Setenv(TFGM_API_URL, "http://localhost")
+
+		res := httptest.NewRecorder()
+		req := httptest.NewRequest(http.MethodGet, "/?id=3&id=5&id=7", nil)
+
+		API(res, req)
+
+		// dirty hack :)
+		assert.Contains(t, res.Body.String(), "/Metrolinks/3")
 	})
 }
