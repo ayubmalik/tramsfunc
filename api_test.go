@@ -97,7 +97,9 @@ func TestAPI(t *testing.T) {
 
 		API(res, req)
 
-		// quick hack :)
+		// TODO: use http server but for now check
+		// expected URL contains path even though
+		// we probably got connections refuse error :)
 		assert.Contains(t, res.Body.String(), "/Metrolinks")
 	})
 
@@ -110,7 +112,7 @@ func TestAPI(t *testing.T) {
 
 		API(res, req)
 
-		// dirty hack :)
+		// TODO: use http server
 		assert.Contains(t, res.Body.String(), "/Metrolinks/3")
 	})
 }
