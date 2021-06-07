@@ -21,14 +21,12 @@ func API(w http.ResponseWriter, r *http.Request) {
 	var apiKey, apiURL string
 
 	if apiKey = os.Getenv(TFGM_API_KEY); apiKey == "" {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "TFGM API Key is not set")
+		handleError(w, http.StatusInternalServerError, "TFGM API Key is not set")
 		return
 	}
 
 	if apiURL = os.Getenv(TFGM_API_URL); apiURL == "" {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "TFGM API URL is not set")
+		handleError(w, http.StatusInternalServerError, "TFGM API URL is not set")
 		return
 	}
 
@@ -46,14 +44,17 @@ func API(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, err.Error())
+		handleError(w, http.StatusInternalServerError, err.Error())
 	}
 
 	if err = json.NewEncoder(w).Encode(metrolinks); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, err.Error())
+		handleError(w, http.StatusInternalServerError, err.Error())
 	}
+}
+
+func handleError(w http.ResponseWriter, code int, err string) {
+	w.WriteHeader(code)
+	fmt.Fprint(w, err)
 }
 
 type client struct {
@@ -119,10 +120,12 @@ func (c client) callAPI(path string, value interface{}) error {
 	return nil
 }
 
+// Metrolinks is the JSON response object from the TTFGM API
 type Metrolinks struct {
 	Value []Metrolink `json:"value"`
 }
 
+// Metrolink represents a TFGM Metrolink tram location
 type Metrolink struct {
 	Id              int
 	Line            string
