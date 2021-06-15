@@ -23,7 +23,7 @@ func TestClient(t *testing.T) {
 			return
 		}
 
-		re := regexp.MustCompile(`/Metrolinks/(\d+)`)
+		re := regexp.MustCompile(`/Metrolinks\((\d+)\)`)
 		matches := re.FindStringSubmatch(r.URL.Path)
 		if len(matches) == 2 {
 			fmt.Fprintf(w, `{"ID": %s, "Line": "line %s"}`, matches[1], matches[1])
@@ -113,6 +113,6 @@ func TestAPI(t *testing.T) {
 		API(res, req)
 
 		// TODO: use http server
-		assert.Contains(t, res.Body.String(), "/Metrolinks/3")
+		assert.Contains(t, res.Body.String(), "/Metrolinks(3)")
 	})
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -10,8 +11,9 @@ import (
 )
 
 func main() {
+	path := "/tramsfunc"
 	ctx := context.Background()
-	if err := funcframework.RegisterHTTPFunctionContext(ctx, "/tramsfunc", tramsfunc.API); err != nil {
+	if err := funcframework.RegisterHTTPFunctionContext(ctx, path, tramsfunc.API); err != nil {
 		log.Fatalf("funcframework.RegisterHTTPFunctionContext: %v\n", err)
 	}
 
@@ -21,6 +23,7 @@ func main() {
 		port = envPort
 	}
 
+	fmt.Printf("URL: http://localhost:%s%s\n", port, path)
 	if err := funcframework.Start(port); err != nil {
 		log.Fatalf("funcframework.Start: %v\n", err)
 	}

@@ -88,7 +88,7 @@ func (c tfgmClient) metrolinksById(ids ...string) ([]Metrolink, error) {
 	metrolinks := make([]Metrolink, 0)
 	for _, id := range ids {
 		var m Metrolink
-		err := c.callAPI("/Metrolinks/"+id, &m)
+		err := c.callAPI("/Metrolinks("+id+")", &m) //TODO sprintf
 		if err != nil {
 			return nil, err
 		}
