@@ -36,7 +36,7 @@ func TestClient(t *testing.T) {
 		ts.Close()
 	})
 
-	client := newClient("some key", ts.URL)
+	client := newTFGMClient("some key", ts.URL)
 
 	t.Run("allMetrolinks", func(t *testing.T) {
 		metrolinks, err := client.allMetrolinks()

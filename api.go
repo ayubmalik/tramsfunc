@@ -31,8 +31,8 @@ func API(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		client     *client  = newClient(apiKey, apiURL)
-		ids        []string = r.URL.Query()["id"]
+		client     *tfgmClient = newTFGMClient(apiKey, apiURL)
+		ids        []string    = r.URL.Query()["id"]
 		metrolinks []Metrolink
 		err        error
 	)
@@ -57,16 +57,16 @@ func handleError(w http.ResponseWriter, code int, err string) {
 	fmt.Fprint(w, err)
 }
 
-type client struct {
+type tfgmClient struct {
 	key        string
 	url        string
 	httpClient http.Client
 }
 
-func newClient(apiKey, apiURL string) *client {
+func newTFGMClient(apiKey, apiURL string) *tfgmClient {
 	httpClient := http.Client{Timeout: 3 * time.Second}
 
-	return &client{
+	return &tfgmClient{
 		key:        apiKey,
 		url:        apiURL,
 		httpClient: httpClient,
@@ -74,7 +74,7 @@ func newClient(apiKey, apiURL string) *client {
 }
 
 // allMetrolinks() returns all available metrolinks
-func (c client) allMetrolinks() ([]Metrolink, error) {
+func (c tfgmClient) allMetrolinks() ([]Metrolink, error) {
 	var metrolinks Metrolinks
 	err := c.callAPI("/Metrolinks", &metrolinks)
 	if err != nil {
@@ -84,7 +84,7 @@ func (c client) allMetrolinks() ([]Metrolink, error) {
 }
 
 // metrolinksById returns metrolinks for the given IDs
-func (c client) metrolinksById(ids ...string) ([]Metrolink, error) {
+func (c tfgmClient) metrolinksById(ids ...string) ([]Metrolink, error) {
 	metrolinks := make([]Metrolink, 0)
 	for _, id := range ids {
 		var m Metrolink
@@ -97,7 +97,7 @@ func (c client) metrolinksById(ids ...string) ([]Metrolink, error) {
 	return metrolinks, nil
 }
 
-func (c client) callAPI(path string, value interface{}) error {
+func (c tfgmClient) callAPI(path string, value interface{}) error {
 	req, err := http.NewRequest(http.MethodGet, c.url+path, nil)
 	if err != nil {
 		return err
