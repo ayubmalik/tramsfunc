@@ -1,3 +1,6 @@
 .gcloudignore
 .git
 .gitignore
+cmd/
+*_test.go
+Makefile
