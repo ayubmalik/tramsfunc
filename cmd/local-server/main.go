@@ -12,8 +12,7 @@ import (
 
 func main() {
 	path := "/tramsfunc"
-	ctx := context.Background()
-	if err := funcframework.RegisterHTTPFunctionContext(ctx, path, tramsfunc.API); err != nil {
+	if err := funcframework.RegisterHTTPFunctionContext(context.Background(), path, tramsfunc.API); err != nil {
 		log.Fatalf("funcframework.RegisterHTTPFunctionContext: %v\n", err)
 	}
 

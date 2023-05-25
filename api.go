@@ -10,9 +10,9 @@ import (
 )
 
 const (
-	TFGM_API_KEY        = "TFGM_API_KEY"
-	TFGM_API_URL        = "TFGM_API_URL"
-	TFGM_API_KEY_HEADER = "Ocp-Apim-Subscription-Key"
+	TfgmApiKey       = "TFGM_API_KEY"
+	TfgmApiUrl       = "TFGM_API_URL"
+	TfgmApiKeyHeader = "Ocp-Apim-Subscription-Key"
 )
 
 // API is the entry point for GCP Functions.
@@ -20,12 +20,12 @@ func API(w http.ResponseWriter, r *http.Request) {
 
 	var apiKey, apiURL string
 
-	if apiKey = os.Getenv(TFGM_API_KEY); apiKey == "" {
+	if apiKey = os.Getenv(TfgmApiKey); apiKey == "" {
 		handleError(w, http.StatusInternalServerError, "TFGM API Key is not set")
 		return
 	}
 
-	if apiURL = os.Getenv(TFGM_API_URL); apiURL == "" {
+	if apiURL = os.Getenv(TfgmApiUrl); apiURL == "" {
 		handleError(w, http.StatusInternalServerError, "TFGM API URL is not set")
 		return
 	}
@@ -102,7 +102,7 @@ func (c tfgmClient) callAPI(path string, value interface{}) error {
 	if err != nil {
 		return err
 	}
-	req.Header.Add(TFGM_API_KEY_HEADER, c.key)
+	req.Header.Add(TfgmApiKeyHeader, c.key)
 
 	res, err := c.httpClient.Do(req)
 	if err != nil {

@@ -13,7 +13,7 @@ import (
 
 func TestClient(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get(TFGM_API_KEY_HEADER) != "some key" {
+		if r.Header.Get(TfgmApiKeyHeader) != "some key" {
 			w.WriteHeader(401)
 			return
 		}
@@ -65,8 +65,8 @@ func TestClient(t *testing.T) {
 func TestAPI(t *testing.T) {
 
 	t.Run("when API key not set", func(t *testing.T) {
-		os.Setenv(TFGM_API_KEY, "")
-		os.Setenv(TFGM_API_URL, "some url")
+		os.Setenv(TfgmApiKey, "")
+		os.Setenv(TfgmApiUrl, "some url")
 
 		res := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -77,8 +77,8 @@ func TestAPI(t *testing.T) {
 	})
 
 	t.Run("when API URL not set", func(t *testing.T) {
-		os.Setenv(TFGM_API_KEY, "some key")
-		os.Setenv(TFGM_API_URL, "")
+		os.Setenv(TfgmApiKey, "some key")
+		os.Setenv(TfgmApiUrl, "")
 
 		res := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -89,8 +89,8 @@ func TestAPI(t *testing.T) {
 	})
 
 	t.Run("calls all metrolinks when no ID param", func(t *testing.T) {
-		os.Setenv(TFGM_API_KEY, "some key")
-		os.Setenv(TFGM_API_URL, "http://localhost")
+		os.Setenv(TfgmApiKey, "some key")
+		os.Setenv(TfgmApiUrl, "http://localhost")
 
 		res := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -104,8 +104,8 @@ func TestAPI(t *testing.T) {
 	})
 
 	t.Run("calls metrolinks by ID", func(t *testing.T) {
-		os.Setenv(TFGM_API_KEY, "some key")
-		os.Setenv(TFGM_API_URL, "http://localhost")
+		os.Setenv(TfgmApiKey, "some key")
+		os.Setenv(TfgmApiUrl, "http://localhost")
 
 		res := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, "/?id=3&id=5&id=7", nil)
