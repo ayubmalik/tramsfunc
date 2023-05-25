@@ -12,7 +12,7 @@ test: clean
 	go test ./
 
 deploy-function:
-	@gcloud functions deploy tramsfunc --project $(GCP_PROJECT) --region $(GCP_REGION) --runtime=go113 --entry-point API \
+	@gcloud functions deploy tramsfunc --project $(GCP_PROJECT) --region $(GCP_REGION) --runtime=go120 --entry-point API \
   	--trigger-http --allow-unauthenticated --set-env-vars TFGM_API_URL=$(TFGM_API_URL),TFGM_API_KEY=$(TFGM_API_KEY)
 
 clean:
